@@ -15,12 +15,17 @@ import machine
 
 import axp192
 import colors
+import pcf8563
 import st7789
 
 # Set up AXP192 PMU
 i2c = machine.I2C(0, sda=machine.Pin(21), scl=machine.Pin(22), freq=400000)
 pmu = axp192.AXP192(i2c)
 print("Battery Status: {:.2f} V".format(pmu.batt_voltage()))
+
+# Set up BM8563 RTC (it is a clone of the NXP PCF8563)
+rtc = pcf8563.PCF8563(i2c)
+print("Current Date and Time: {}", rtc.datetime())
 
 # Set up ST7789 TFT
 spi = machine.SPI(1, baudrate=20_000_000, polarity=1,
