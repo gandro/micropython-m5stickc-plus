@@ -1,0 +1,7 @@
+# Python bytecode
+*.pyc
+*.mpy
+
+# VSCode
+.pylintrc
+.vscode
