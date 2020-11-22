@@ -54,6 +54,17 @@ to optimize memory usage when deployed in [pre-compiled bytecode](mpy) form.
 [const]: http://docs.micropython.org/en/latest/library/micropython.html#micropython.const
 [mpy]: http://docs.micropython.org/en/latest/reference/mpyfiles.html
 
+## Credits
+
+The following modules are derived from third-party sources:
+
+  - `st7789`: Directly based on
+    [devbis/st7789py_mpy](https://github.com/devbis/st7789py_mpy)
+    by *Ivan Belokobylskiy* (License: MIT)
+  - `pcf8563`: Micropython port of
+    [tuupola/pcf8563](https://github.com/tuupola/pcf8563)
+    by *Mika Tuupola* (License: MIT)
+
 ## Contributing
 
 Contributions are welcome! Please read and follow the
