@@ -44,7 +44,7 @@ tft.text("Hello World", 10, 30, colors.WHITE, c)
 ```
 
 Some of the modules in this repository make use of [`micropython.const`](const)
-to optimize memory-usage when deployed in [pre-compiled bytecode](mpy) form.
+to optimize memory usage when deployed in [pre-compiled bytecode](mpy) form.
 
 [const]: http://docs.micropython.org/en/latest/library/micropython.html#micropython.const
 [mpy]: http://docs.micropython.org/en/latest/reference/mpyfiles.html
