@@ -7,7 +7,7 @@ generic Micropython build for ESP32-based boards.
 
 [M5StickCPlus]: https://docs.m5stack.com/#/en/core/m5stickc_plus
 
-## Example
+## Examples
 
 ```python
 import random
@@ -23,7 +23,7 @@ i2c = machine.I2C(0, sda=machine.Pin(21), scl=machine.Pin(22), freq=400000)
 pmu = axp192.AXP192(i2c)
 print("Battery Status: {:.2f} V".format(pmu.batt_voltage()))
 
-# Set up BM8563 RTC (it is a clone of the NXP PCF8563)
+# Set up BM8563 RTC (clone of the NXP PCF8563)
 rtc = pcf8563.PCF8563(i2c)
 print("Current Date and Time: {}".format(rtc.datetime()))
 
@@ -46,6 +46,19 @@ c = colors.rgb565(
 )
 tft.fill(c)
 tft.text("Hello World", 10, 30, colors.WHITE, c)
+```
+
+Using the [M5StickC ENV Hat](https://m5stack.com/products/m5stickc-env-hat):
+
+```python
+import dht12
+
+# Hat I2C
+hat_i2c = machine.I2C(1, sda=machine.Pin(0), scl=machine.Pin(26), freq=400000)
+# DHT12 Temperature and Humidity sensor
+rht = dht12.DHT12(hat_i2c)
+rht.measure()
+print("Temp/Humidity: {}°C/{}%".format(rht.temperature(), rht.humidity()))
 ```
 
 Some of the modules in this repository make use of [`micropython.const`](const)
