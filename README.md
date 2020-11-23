@@ -25,7 +25,7 @@ print("Battery Status: {:.2f} V".format(pmu.batt_voltage()))
 
 # Set up BM8563 RTC (it is a clone of the NXP PCF8563)
 rtc = pcf8563.PCF8563(i2c)
-print("Current Date and Time: {}", rtc.datetime())
+print("Current Date and Time: {}".format(rtc.datetime()))
 
 # Set up ST7789 TFT
 spi = machine.SPI(1, baudrate=20_000_000, polarity=1,

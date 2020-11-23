@@ -20,6 +20,10 @@
 # SOFTWARE.
 #
 # Based on https://github.com/tuupola/pcf8563
+#
+# Unimplemented:
+#   - Timer support
+#   - CLKOUT configuration
 """
 Driver for the PCF8563/BM8563 real-time clock module.
 """
@@ -66,7 +70,6 @@ _PCF8563_TIMER_CONTROL_FREQ_1HZ = const(0b0000_0010)
 _PCF8563_TIMER_CONTROL_FREQ_1_60HZ = const(0b0000_0011)
 _PCF8563_TIMER = const(0x0f)
 
-
 def _dec2bcd(decimal):
     high, low = divmod(decimal, 10)
     return (high << 4) | low
@@ -77,20 +80,23 @@ def _bcd2dec(bcd):
 
 
 class PCF8563:
-    def __init__(self, i2c, addr=_PCF8563_I2C_DEFAULT_ADDR):
+    def __init__(self, i2c, *, addr=_PCF8563_I2C_DEFAULT_ADDR, alarm_irq=True):
         self.i2c = i2c
         self.addr = addr
-        self.i2c.writeto_mem(self.addr, _PCF8563_CONTROL_STATUS1, b"\x00")
-        self.i2c.writeto_mem(self.addr, _PCF8563_CONTROL_STATUS2, b"\x00")
+
+        status = bytearray(1)
+        self.i2c.writeto_mem(self.addr, _PCF8563_CONTROL_STATUS1, status)
+        if alarm_irq:
+            status[0] |= _PCF8563_CONTROL_STATUS2_AIE
+        self.i2c.writeto_mem(self.addr, _PCF8563_CONTROL_STATUS2, status)
 
     def datetime(self, datetime=None):
         """
         With no arguments, this method returns an 7-tuple with the current
         date and time. With 1 argument (being an 7-tuple) it sets the date and
-        time.
+        time. The 7-tuple has the following format:
 
-        The 7-tuple has the following format:
-            `(year, month, mday, hour, minute, second, weekday)`
+        (year, month, mday, hour, minute, second, weekday)
 
         `year` is 1900..2099
         `month` is 1..12
@@ -160,3 +166,91 @@ class PCF8563:
         data[6] = bcd & 0b11111111
 
         return self.i2c.writeto_mem(self.addr, _PCF8563_SECONDS, data)
+
+    def alarm(self, alarm=None):
+        """
+        Sets or gets the alarm. If no arguments are provided, it returns
+        the currently set alarm in the form of a 4-tuple. If 1 argument is
+        provided (being a 4-tuple), the alarm is set.
+
+        (hour, minute, mday, weekday)
+
+        `hour` is 0..23 or None
+        `minute` is 0..59 or None
+        `mday` is 1..31 or None
+        `weekday` is 0..6 or None
+
+        If a tuple field is set to None then it is not considered for triggering
+        the alarm. If all four fields are set to None, the alarm is disabled.
+        """
+        if alarm is None:
+            data = self.i2c.readfrom_mem(
+                self.addr, _PCF8563_MINUTE_ALARM, _PCF8563_ALARM_SIZE)
+            # 0..59
+            if _PCF8563_ALARM_DISABLE & data[0]:
+                minute = None
+            else:
+                bcd = data[0] & 0b01111111
+                minute = _bcd2dec(bcd)
+            # 0..23
+            if _PCF8563_ALARM_DISABLE & data[1]:
+                hour = None
+            else:
+                bcd = data[1] & 0b00111111
+                hour = _bcd2dec(bcd)
+            # 1..31
+            if _PCF8563_ALARM_DISABLE & data[2]:
+                mday = None
+            else:
+                bcd = data[2] & 0b00111111
+                mday = _bcd2dec(bcd)
+            # 0..6
+            if _PCF8563_ALARM_DISABLE & data[3]:
+                weekday = None
+            else:
+                bcd = data[3] & 0b00000111
+                weekday = _bcd2dec(bcd)
+
+            return (hour, minute, mday, weekday)
+
+        (hour, minute, mday, weekday) = alarm
+        data = bytearray(_PCF8563_ALARM_SIZE)
+        # 0..59
+        if minute is None:
+            data[0] = _PCF8563_ALARM_DISABLE
+        else:
+            data[0] = _dec2bcd(minute)
+            data[0] &= 0b01111111
+        # 0..23
+        if hour is None:
+            data[1] = _PCF8563_ALARM_DISABLE
+        else:
+            data[1] = _dec2bcd(hour)
+            data[1] &= 0b00111111
+        # 1..31
+        if mday is None:
+            data[2] = _PCF8563_ALARM_DISABLE
+        else:
+            data[2] = _dec2bcd(mday)
+            data[2] &= 0b00111111
+        # 0..6
+        if weekday is None:
+            data[3] = _PCF8563_ALARM_DISABLE
+        else:
+            data[3] = _dec2bcd(weekday)
+            data[3] &= 0b00000111
+        return self.i2c.writeto_mem(self.addr, _PCF8563_MINUTE_ALARM, data)
+
+    def alarm_active(self, clear=False):
+        """
+        Returns True if the alarm is currently active. An active alarm can be
+        cleared by setting the clear argument to True.
+        """
+        data = bytearray(1)
+        self.i2c.readfrom_mem_into(self.addr, _PCF8563_CONTROL_STATUS2, data)
+        active = bool(data[0] & _PCF8563_CONTROL_STATUS2_AF)
+        if clear:
+            data[0] &= ~_PCF8563_CONTROL_STATUS2_AF  # AF=0 means alarm cleared
+            data[0] |= _PCF8563_CONTROL_STATUS2_TF  # TF=1 mean timer unchanged
+            self.i2c.writeto_mem(self.addr, _PCF8563_CONTROL_STATUS2, data)
+        return active
