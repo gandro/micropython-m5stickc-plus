@@ -20,7 +20,7 @@ import st7789
 
 # Set up AXP192 PMU
 i2c = machine.I2C(0, sda=machine.Pin(21), scl=machine.Pin(22), freq=400000)
-pmu = axp192.AXP192(i2c)
+pmu = axp192.AXP192(i2c, board=axp192.M5StickCPlus)
 print("Battery Status: {:.2f} V".format(pmu.batt_voltage()))
 
 # Set up BM8563 RTC (clone of the NXP PCF8563)
