@@ -111,8 +111,8 @@ class BMP280:
         control = bytearray(1)
         control[0] |= ((temp_samples << _BMP280_CONTROL_TEMP_SAMPLES_POS)
                        & _BMP280_CONTROL_TEMP_SAMPLES_MASK)
-        control[0] |= ((
-            press_samples << _BMP280_CONTROL_PRESS_SAMPLES_POS) & _BMP280_CONTROL_PRESS_SAMPLES_MASK)
+        control[0] |= ((press_samples << _BMP280_CONTROL_PRESS_SAMPLES_POS)
+                       & _BMP280_CONTROL_PRESS_SAMPLES_MASK)
         # MODE_FORCED will be set in the call to measure()
         if mode == MODE_NORMAL:
             control[0] |= ((MODE_NORMAL << _BMP280_CONTROL_MODE_POS)
@@ -195,8 +195,8 @@ class BMP280:
 
         (temperature, pressure)
 
-        Will wake up the sensor for a single measurement if the sensor is in
-        sleep mode.
+        This function will wake up the sensor for a single measurement if the
+        sensor is in sleep mode.
         """
         temp_en, press_en = self._measure_prepare()
 
