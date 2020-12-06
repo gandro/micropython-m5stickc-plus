@@ -55,10 +55,10 @@ import dht12
 
 # Hat I2C
 hat_i2c = machine.I2C(1, sda=machine.Pin(0), scl=machine.Pin(26), freq=400000)
-# DHT12 Temperature and Humidity sensor
+# DHT12 temperature and humidity sensor
 rht = dht12.DHT12(hat_i2c)
-rht.measure()
-print("Temp/Humidity: {}°C/{}%".format(rht.temperature(), rht.humidity()))
+temp, humidity = rht.measure()
+print("Temp/Humidity: {}°C/{}%".format(temp, humidity))
 ```
 
 Some of the modules in this repository make use of [`micropython.const`](const)
