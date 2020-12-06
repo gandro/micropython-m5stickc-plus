@@ -59,6 +59,10 @@ hat_i2c = machine.I2C(1, sda=machine.Pin(0), scl=machine.Pin(26), freq=400000)
 rht = dht12.DHT12(hat_i2c)
 temp, humidity = rht.measure()
 print("Temp/Humidity: {}°C/{}%".format(temp, humidity))
+# BMP280 temperature and pressure sensor
+prt = bmp280.BMP280(hat_i2c, mode=bmp280.MODE_FORCED)
+temp, pressure = prt.measure()
+print("Temp/Pressure: {}°C/{}Pa".format(temp, pressure))
 ```
 
 Some of the modules in this repository make use of [`micropython.const`](const)
