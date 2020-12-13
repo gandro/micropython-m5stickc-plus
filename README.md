@@ -63,6 +63,14 @@ print("Temp/Humidity: {}°C/{}%".format(temp, humidity))
 prt = bmp280.BMP280(hat_i2c, mode=bmp280.MODE_FORCED)
 temp, pressure = prt.measure()
 print("Temp/Pressure: {}°C/{}Pa".format(temp, pressure))
+
+# Groove I2C
+gr_i2c = machine.I2C(sda=machine.Pin(32), scl=machine.Pin(33), freq=400000)
+# SGP30 indoor air quality sensor
+voc = sgp30.SGP30(gr_i2c)
+voc.set_absolute_humidity(sgp30.absolute_humidity(temp, humidity))
+eco2, tvoc = voc.measure()
+print("eCO2/TVOC: {}ppm/{}ppb".format(eco2, tvoc))
 ```
 
 Some of the modules in this repository make use of [`micropython.const`](const)
