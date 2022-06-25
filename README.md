@@ -1,9 +1,9 @@
 # micropython-m5stickc-plus
 
 This repository contains drivers for various components available on the
-[M5StickC Plus](M5StickCPlus) platform. All drivers are written in pure
-[Micropython](https://micropython.org/) and are intended to be used with the
-generic Micropython build for ESP32-based boards.
+[M5StickC Plus](https://github.com/m5stack/M5StickC-Plus) platform.
+All drivers are written in pure [Micropython](https://micropython.org/) and are
+intended to be used with the generic Micropython build for ESP32-based boards.
 
 [M5StickCPlus]: https://docs.m5stack.com/#/en/core/m5stickc_plus
 
